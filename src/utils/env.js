@@ -11,5 +11,3 @@ export function env(name, defaultValue) {
 
   throw new Error(`Missing: process.env['${name}'].`);
 }
-
-// mongodb+srv://admin:admin@cluster.hndyjhx.mongodb.net/?retryWrites=true&w=majority
