@@ -1,18 +1,20 @@
 import { Schema, model } from 'mongoose';
 import { EMAIL_REGEX } from '../../constants/index.js';
 
-const userSchema = new Schema(
+export const userSchema = new Schema(
   {
     name: {
       type: String,
       required: true,
     },
+
     email: {
       type: String,
-      match: [EMAIL_REGEX, 'Please fill a valid address'],
-      unique: true,
+      match: [EMAIL_REGEX, 'Please fill a valid email address'],
       required: true,
+      unique: true,
     },
+
     password: {
       type: String,
       required: true,
@@ -25,9 +27,9 @@ const userSchema = new Schema(
 );
 
 userSchema.methods.toJSON = function () {
-          const obj = this.toObject();
-          delete obj.password;
-          return obj;
-}
+  const obj = this.toObject();
+  delete obj.password;
+  return obj;
+};
 
-export const User = model('user', userSchema);
+export const User = model('user', userSchema)

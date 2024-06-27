@@ -1,6 +1,5 @@
 import { model, Schema } from 'mongoose';
-
-const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+import { EMAIL_REGEX } from '../../constants/index.js';
 
 const contactsSchema = new Schema(
   {
@@ -14,7 +13,7 @@ const contactsSchema = new Schema(
     },
     email: {
       type: String,
-      match: [emailRegex, 'Please fill a valid email address'],
+      match: [EMAIL_REGEX, 'Please fill a valid email address'],
       required: false,
     },
     isFavourite: {
@@ -25,8 +24,11 @@ const contactsSchema = new Schema(
     contactType: {
       type: String,
       enum: ['work', 'home', 'personal'],
-      required: true,
       default: 'personal',
+    },
+    userId: {
+      type: Schema.ObjectId,
+      required: true,
     },
   },
   {
@@ -35,4 +37,4 @@ const contactsSchema = new Schema(
   },
 );
 
-export const ContactsCollection = model('contact', contactsSchema);
+export const ContactsCollection = model('contacts', contactsSchema);

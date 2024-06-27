@@ -3,11 +3,12 @@ const parseContactType = (contactType) => {
 
   if (!isString) return;
 
-  const isContactType = (contactType) => 
-    ['work', 'home', 'personal'].includrs(contactType);
+  const isContactType = (contactType) =>
+    ['work', 'home', 'personal'].includes(contactType);
 
-    if (isContactType(contactType)) return contactType;
+  if (isContactType(contactType)) return contactType;
 };
+
 const parseIsFavourite = (favourite) => {
   if (favourite === 'true' || favourite === 'false') {
     return favourite;
@@ -16,6 +17,7 @@ const parseIsFavourite = (favourite) => {
 
 export const parseFilterParams = (query) => {
   const { type, isFavourite } = query;
+
   const parsedContactType = parseContactType(type);
 
   const parsedIsFavourite = parseIsFavourite(isFavourite);
