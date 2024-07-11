@@ -12,6 +12,9 @@ export const authenticate = async (req, res, next) => {
 
   const [bearer, token] = header.split(' ');
 
+  // const bearer = header.split(' ')[0];
+  // const token = header.split(' ')[1];
+
   if (bearer !== 'Bearer' || !token) {
     next(createHttpError(401, 'Unauthorized'));
     return;
