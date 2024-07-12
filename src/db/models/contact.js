@@ -30,6 +30,10 @@ const contactsSchema = new Schema(
       type: Schema.ObjectId,
       required: true,
     },
+    photo:{
+      type:String,
+      required: false,
+    },
   },
   {
     timestamps: true,
