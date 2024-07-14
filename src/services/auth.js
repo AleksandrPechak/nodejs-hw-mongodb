@@ -17,6 +17,10 @@ import path from 'path';
 import fs from 'fs/promises';
 import handlebars from 'handlebars';
 import { sendEmail } from '../utils/sendEmail.js';
+import {
+  getFullNameFromGoogleTokenPayload,
+  validateCode,
+} from '../utils/googleOAuth.js';
 
 const createSession = () => {
   return {
@@ -162,4 +166,27 @@ export const resetPassword = async (payload) => {
   await User.updateOne({ _id: user._id }, { password: encryptedPassword });
 
   await Session.deleteOne({ userId: user._id });
+};
+
+export const loginOrSignupWithGoogle = async (code) => {
+  const loginTicket = await validateCode(code);
+  const payload = loginTicket.getPayload();
+  if (!payload) throw createHttpError(401);
+
+  let user = await UsersCollection.findOne({ email: payload.email });
+  if (!user) {
+    const password = await bcrypt.hash(randomBytes(10), 10);
+    user = await UsersCollection.create({
+      email: payload.email,
+      name: getFullNameFromGoogleTokenPayload(payload),
+      password,
+    });
+  }
+  
+  await Session.deleteOne({ userId: user._id });
+
+  return await Session.create({
+    userId: user._id,
+    ...createSession(),
+  });
 };
