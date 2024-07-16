@@ -32,11 +32,11 @@ export const setupServer = () => {
 
   app.use(errorHandler);
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log('\x1b[42m%s\x1b[0m', `Server is running on port ${PORT}`);
-  });
-
-  // app.listen(PORT, () => {
+  // app.listen(PORT, '0.0.0.0', () => {
   //   console.log('\x1b[42m%s\x1b[0m', `Server is running on port ${PORT}`);
   // });
+
+  app.listen(PORT, () => {
+    console.log('\x1b[42m%s\x1b[0m', `Server is running on port ${PORT}`);
+  });
 };
