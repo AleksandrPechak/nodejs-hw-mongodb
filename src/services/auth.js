@@ -100,7 +100,7 @@ export const sendResetEmail = async (email) => {
     },
     env(JWT_SECRET),
     {
-      expiresIn: '5m',
+      expiresIn: '15m',
     },
   );
 
@@ -128,6 +128,7 @@ export const sendResetEmail = async (email) => {
       html,
     });
   } catch (err) {
+    console.log(err);
     throw createHttpError(
       500,
 
