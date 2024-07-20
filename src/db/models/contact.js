@@ -24,15 +24,6 @@ const contactsSchema = new Schema(
       type: String,
       enum: ['work', 'home', 'personal'],
       default: 'personal',
-      required: true,
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
-    updatedAt: {
-      type: Date,
-      default: Date.now,
     },
     userId: {
       type: Schema.ObjectId,
