@@ -32,18 +32,6 @@ requestBody:
             format: email
             description: 'Email address'
             example: 'john.doe@example.com'
-          isFavourite:
-            type: boolean
-            description: 'Contact favourite'
-            example: false
-          contactType:
-            type: string
-            description: "Contact's type"
-            enum:
-              - work
-              - home
-              - personal
-            example: 'work'
           photo:
             type: string
             format: binary
