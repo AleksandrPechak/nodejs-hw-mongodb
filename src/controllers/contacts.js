@@ -11,7 +11,7 @@ import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
 import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
-import { createContactSchema } from '../validation/createContactSchema.js';  // Импортируем схему валидации
+import { createContactSchema } from '../validation/createContactSchema.js';
 
 export const getAllContactsController = async (req, res, next) => {
   try {
