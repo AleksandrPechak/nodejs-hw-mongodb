@@ -6,12 +6,12 @@ import {
   getContactById,
   patchContact,
 } from '../services/contacts.js';
-import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
-// import { env } from '../utils/env.js';
+import { env } from '../utils/env.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
 import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
+import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
 import { createContactSchema } from '../validation/createContactSchema.js';
 
 export const getAllContactsController = async (req, res, next) => {
@@ -61,34 +61,61 @@ export const getContactByIdController = async (req, res, next) => {
   }
 };
 
-export const addContactController = async (req, res, next) => {
-  try {
-    const { error, value } = createContactSchema.validate(req.body);
+export const addContactController = async (req, res) => {
+  const photo = req.file;
 
-    if (error) {
-      throw createHttpError(400, error.details[0].message);
-    }
+  let photoUrl;
 
-    const userId = req.user._id;
-    const photo = req.file;
-
-    let photoUrl;
-
-    if (photo) {
+  if (photo) {
+    if (env('ENABLE_CLOUDINARY') === 'true') {
       photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
     }
-
-    const contact = await addContact({ payload: value, userId, photo: photoUrl });
-
-    res.status(201).json({
-      status: 201,
-      message: 'Successfully created a contact!',
-      data: contact,
-    });
-  } catch (error) {
-    next(error);
   }
+  const combinedPayload = {
+    ...req.body,
+    userId: req.user._id,
+    photo: photoUrl,
+  };
+
+  const contact = await addContact(combinedPayload);
+
+  res.status(201).json({
+    status: res.statusCode,
+    message: 'Successfully created a contact!',
+    data: contact,
+  });
 };
+
+// export const addContactController = async (req, res, next) => {
+//   try {
+//     const { error, value } = createContactSchema.validate(req.body);
+
+//     if (error) {
+//       throw createHttpError(400, error.details[0].message);
+//     }
+
+//     const userId = req.user._id;
+//     const photo = req.file;
+
+//     let photoUrl;
+
+//     if (photo) {
+//       photoUrl = await saveFileToCloudinary(photo);
+//     }
+
+//     const contact = await addContact({ payload: value, userId, photo: photoUrl });
+
+//     res.status(201).json({
+//       status: 201,
+//       message: 'Successfully created a contact!',
+//       data: contact,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 export const patchContactController = async (req, res, next) => {
   try {
