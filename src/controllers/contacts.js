@@ -7,7 +7,7 @@ import {
   patchContact,
 } from '../services/contacts.js';
 import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
-import { env } from '../utils/env.js';
+// import { env } from '../utils/env.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
@@ -91,38 +91,47 @@ export const addContactController = async (req, res, next) => {
 };
 
 export const patchContactController = async (req, res, next) => {
-  const { contactId } = req.params;
-  const contact = await getContactById(contactId);
-  const photo = req.file;
+  try {
+    const { contactId } = req.params;
+    const contact = await getContactById(contactId);
 
-  let photoUrl;
-
-  if (photo) {
-    if (env('ENABLE_CLOUDINARY') === 'true') {
-      photoUrl = await saveFileToCloudinary(photo);
-    } else {
-      photoUrl = await saveFileToUploadDir(photo);
+    if (!contact) {
+      return next(createHttpError(404, 'Contact not found'));
     }
+
+    if (req.user._id.toString() !== contact.userId.toString()) {
+      throw createHttpError(401, 'Unauthorized');
+    }
+
+    let photoUrl;
+
+    if (req.file) {
+      try {
+        if (process.env.ENABLE_CLOUDINARY === 'true') {
+          photoUrl = await saveFileToCloudinary(req.file);
+        } else {
+          photoUrl = await saveFileToUploadDir(req.file);
+        }
+      } catch (error) {
+        console.log(error);
+        return next(createHttpError(500, 'Error uploading file'));
+      }
+      
+    }
+
+    const updatedContact = await patchContact(contactId, {
+      ...req.body,
+      photo: photoUrl,
+    });
+
+    res.json({
+      status: 200,
+      message: 'Successfully patched a contact!',
+      data: updatedContact.contact,
+    });
+  } catch (error) {
+    next(error);
   }
-
-  if (!contact) {
-    next(createHttpError(404, 'Contact not found'));
-    return;
-  }
-
-  if (req.user._id.toString() !== contact.userId.toString())
-    throw createHttpError(401, 'Unauthorised');
-
-  const result = await patchContact(contactId, {
-    ...req.body,
-    photo: photoUrl,
-  });
-
-  res.json({
-    status: 200,
-    message: `Successfully patched a contact!`,
-    data: result.contact,
-  });
 };
 
 
