@@ -2,13 +2,13 @@ import Joi from 'joi';
 
 export const updateContactSchema = Joi.object({
   name: Joi.string().min(3).max(20),
-  phoneNumber: Joi.string().min(3).max(20),
-  email: Joi.string().email().min(3).max(20),
-  isFavourite: Joi.boolean().default(true),
+  phoneNumber: Joi.number(),
+  email: Joi.string().min(3).max(20).email().optional(),
+  isFavourite: Joi.boolean().default(false),
   contactType: Joi.string()
+    .valid('work', 'home', 'personal')
     .min(3)
     .max(20)
-    .valid('work', 'home', 'personal')
-    .default('personal'),
-  photo: Joi.string().optional(),
+    .default('personal')
+    .optional(),
 });
