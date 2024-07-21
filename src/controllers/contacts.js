@@ -12,7 +12,7 @@ import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
 import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
-import { createContactSchema } from '../validation/createContactSchema.js';
+// import { createContactSchema } from '../validation/createContactSchema.js';
 
 export const getAllContactsController = async (req, res, next) => {
   try {
