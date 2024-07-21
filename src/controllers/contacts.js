@@ -69,13 +69,27 @@ export const addContactController = async (req, res, next) => {
     }
 
     const userId = req.user._id;
-    const photo = req.file;
+    // const photo = req.file;
 
     let photoUrl;
 
-    if (photo) {
-      photoUrl = await saveFileToCloudinary(photo);
+    if (req.file) {
+      try {
+        if (process.env.ENABLE_CLOUDINARY === 'true') {
+          photoUrl = await saveFileToCloudinary(req.file);
+        } else {
+          photoUrl = await saveFileToUploadDir(req.file);
+        }
+      } catch (error) {
+        console.log(error);
+        return next(createHttpError(500, 'Error uploading file'));
+      }
+      
     }
+
+    // if (photo) {
+    //   photoUrl = await saveFileToCloudinary(photo);
+    // }
 
     const contact = await addContact({ payload: value, userId, photo: photoUrl });
 
