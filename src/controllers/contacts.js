@@ -11,6 +11,7 @@ import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
 import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 import { createContactSchema } from '../validation/createContactSchema.js';
+import { updateContactSchema } from '../validation/updateContactSchema.js';
 
 export const getAllContactsController = async (req, res, next) => {
   try {
@@ -90,7 +91,7 @@ export const addContactController = async (req, res, next) => {
 
 export const patchContactController = async (req, res, next) => {
   try {
-    const { error, value } = createContactSchema.validate(req.body, { allowUnknown: true });
+    const { error, value } = updateContactSchema.validate(req.body, { allowUnknown: true });
 
     if (error) {
       throw createHttpError(400, error.details[0].message);
