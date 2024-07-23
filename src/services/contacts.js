@@ -55,47 +55,25 @@ export const getContactById = async ({ contactId, userId }) => {
   return contact;
 };
 
-export const addContact = async payload => {
-  const contact = await ContactsCollection.create(payload);
+export const addContact = async ({ payload, userId, photo }) => {
+  const contact = await ContactsCollection.create({
+    ...payload,
+    userId,
+    photo,
+  });
   return contact;
 };
 
-export const patchContact = async (contactId, payload, options = {}) => {
-  const rawResult = await ContactsCollection.findOneAndUpdate(
-    { _id: contactId },
-    payload,
+export const patchContact = async ({ contactId, contact, userId, photo }) => {
+  const result = ContactsCollection.findOneAndUpdate(
+    { _id: contactId, userId },
+    { ...contact, photo },
     {
       new: true,
-      includeResultMetadata: true,
-      ...options,
-    }
+    },
   );
-  if (!rawResult || !rawResult.value) return null;
-  return {
-    contact: rawResult.value,
-    isNew: Boolean(rawResult?.lastErrorObject?.upserted),
-  };
+  return result;
 };
-
-// export const addContact = async ({ payload, userId, photo }) => {
-//   const contact = await ContactsCollection.create({
-//     ...payload,
-//     userId,
-//     photo,
-//   });
-//   return contact;
-// };
-
-// export const patchContact = async ({ contactId, contact, userId, photo }) => {
-//   const result = ContactsCollection.findOneAndUpdate(
-//     { _id: contactId, userId },
-//     { ...contact, photo },
-//     {
-//       new: true,
-//     },
-//   );
-//   return result;
-// };
 
 export const deleteContact = async ({ contactId, userId }) => {
   const result = ContactsCollection.findOneAndDelete({

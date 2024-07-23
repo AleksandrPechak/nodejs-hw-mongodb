@@ -69,7 +69,6 @@ export const addContactController = async (req, res, next) => {
     }
 
     const userId = req.user._id;
-    // const photo = req.file;
 
     let photoUrl;
 
@@ -87,10 +86,6 @@ export const addContactController = async (req, res, next) => {
       
     }
 
-    // if (photo) {
-    //   photoUrl = await saveFileToCloudinary(photo);
-    // }
-
     const contact = await addContact({ payload: value, userId, photo: photoUrl });
 
     res.status(201).json({
@@ -105,8 +100,8 @@ export const addContactController = async (req, res, next) => {
 
 export const patchContactController = async (req, res, next) => {
   try {
-    const { contactId } = req.params;
-    const contact = await getContactById(contactId);
+    const { contactId, userId } = req.params;
+    const contact = await getContactById(contactId, userId);
 
     if (!contact) {
       return next(createHttpError(404, 'Contact not found'));
