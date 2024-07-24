@@ -75,23 +75,6 @@ export const patchContact = async ({ contactId, contact, userId, photo }) => {
   return result;
 };
 
-// export const patchContact = async (contactId, payload, options = {}) => {
-//   const rawResult = await ContactsCollection.findOneAndUpdate(
-//     { _id: contactId },
-//     payload,
-//     {
-//       new: true,
-//       includeResultMetadata: true,
-//       ...options,
-//     }
-//   );
-//   if (!rawResult || !rawResult.value) return null;
-//   return {
-//     contact: rawResult.value,
-//     isNew: Boolean(rawResult?.lastErrorObject?.upserted),
-//   };
-// };
-
 export const deleteContact = async ({ contactId, userId }) => {
   const result = ContactsCollection.findOneAndDelete({
     _id: contactId,

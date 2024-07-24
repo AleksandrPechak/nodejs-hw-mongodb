@@ -11,7 +11,6 @@ import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
 import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
-import { env } from '../utils/env.js';
 import { createContactSchema } from '../validation/createContactSchema.js';
 
 export const getAllContactsController = async (req, res, next) => {
@@ -132,41 +131,6 @@ export const patchContactController = async (req, res, next) => {
     data: result,
   });
 };
-
-// export const patchContactController = async (req, res, next) => {
-//   const { contactId } = req.params;
-//   const contact = await getContactById(contactId);
-//   const photo = req.file;
-
-//   let photoUrl;
-
-//   if (photo) {
-//     if (env('ENABLE_CLOUDINARY') === 'true') {
-//       photoUrl = await saveFileToCloudinary(photo);
-//     } else {
-//       photoUrl = await saveFileToUploadDir(photo);
-//     }
-//   }
-
-//   if (!contact) {
-//     next(createHttpError(404, 'Contact not found'));
-//     return;
-//   }
-
-//   if (req.user._id.toString() !== contact.userId.toString())
-//     throw createHttpError(401, 'Unauthorised');
-
-//   const result = await patchContact(contactId, {
-//     ...req.body,
-//     photo: photoUrl,
-//   });
-
-//   res.json({
-//     status: 200,
-//     message: `Successfully patched a contact!`,
-//     data: result.contact,
-//   });
-// };
 
 export const deleteContactController = async (req, res, next) => {
   try {
