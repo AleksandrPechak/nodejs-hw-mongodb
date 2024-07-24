@@ -11,6 +11,7 @@ import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
 import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
+import { env } from '../utils/env.js';
 import { createContactSchema } from '../validation/createContactSchema.js';
 
 export const getAllContactsController = async (req, res, next) => {
@@ -83,10 +84,13 @@ export const addContactController = async (req, res, next) => {
         console.log(error);
         return next(createHttpError(500, 'Error uploading file'));
       }
-      
     }
 
-    const contact = await addContact({ payload: value, userId, photo: photoUrl });
+    const contact = await addContact({
+      payload: value,
+      userId,
+      photo: photoUrl,
+    });
 
     res.status(201).json({
       status: 201,
@@ -99,49 +103,70 @@ export const addContactController = async (req, res, next) => {
 };
 
 export const patchContactController = async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
-    const contact = await getContactById(contactId);
+  const { contactId } = req.params;
+  const userId = req.user._id;
+  const contact = req.body;
+  const photo = req.file;
 
-    if (!contact) {
-      return next(createHttpError(404, 'Contact not found'));
-    }
+  let photoUrl;
 
-    if (req.user._id.toString() !== contact.userId.toString()) {
-      throw createHttpError(401, 'Unauthorized');
-    }
-
-    let photoUrl;
-
-    if (req.file) {
-      try {
-        if (process.env.ENABLE_CLOUDINARY === 'true') {
-          photoUrl = await saveFileToCloudinary(req.file);
-        } else {
-          photoUrl = await saveFileToUploadDir(req.file);
-        }
-      } catch (error) {
-        console.log(error);
-        return next(createHttpError(500, 'Error uploading file'));
-      }
-      
-    }
-
-    const updatedContact = await patchContact(contactId, {
-      ...req.body,
-      photo: photoUrl,
-    });
-
-    res.json({
-      status: 200,
-      message: 'Successfully patched a contact!',
-      data: updatedContact.contact,
-    });
-  } catch (error) {
-    next(error);
+  if (photo) {
+    photoUrl = await saveFileToCloudinary(photo);
   }
+
+  const result = await patchContact({
+    contactId,
+    contact,
+    userId,
+    photo: photoUrl,
+  });
+
+  if (!result) {
+    next(createHttpError(404, 'Contact not found'));
+    return;
+  }
+
+  res.json({
+    status: 200,
+    message: 'Successfully patched a contact!',
+    data: result,
+  });
 };
 
+// export const patchContactController = async (req, res, next) => {
+//   const { contactId } = req.params;
+//   const contact = await getContactById(contactId);
+//   const photo = req.file;
+
+//   let photoUrl;
+
+//   if (photo) {
+//     if (env('ENABLE_CLOUDINARY') === 'true') {
+//       photoUrl = await saveFileToCloudinary(photo);
+//     } else {
+//       photoUrl = await saveFileToUploadDir(photo);
+//     }
+//   }
+
+//   if (!contact) {
+//     next(createHttpError(404, 'Contact not found'));
+//     return;
+//   }
+
+//   if (req.user._id.toString() !== contact.userId.toString())
+//     throw createHttpError(401, 'Unauthorised');
+
+//   const result = await patchContact(contactId, {
+//     ...req.body,
+//     photo: photoUrl,
+//   });
+
+//   res.json({
+//     status: 200,
+//     message: `Successfully patched a contact!`,
+//     data: result.contact,
+//   });
+// };
 
 export const deleteContactController = async (req, res, next) => {
   try {
