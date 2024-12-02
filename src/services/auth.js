@@ -17,6 +17,10 @@ import path from 'path';
 import fs from 'fs/promises';
 import handlebars from 'handlebars';
 import { sendEmail } from '../utils/sendEmail.js';
+import {
+  getFullNameFromGoogleTokenPayload,
+  validateCode,
+} from '../utils/googleOAuth.js';
 
 const createSession = () => {
   return {
@@ -96,7 +100,7 @@ export const sendResetEmail = async (email) => {
     },
     env(JWT_SECRET),
     {
-      expiresIn: '5m',
+      expiresIn: '15m',
     },
   );
 
@@ -124,6 +128,7 @@ export const sendResetEmail = async (email) => {
       html,
     });
   } catch (err) {
+    console.log(err);
     throw createHttpError(
       500,
 
@@ -162,4 +167,30 @@ export const resetPassword = async (payload) => {
   await User.updateOne({ _id: user._id }, { password: encryptedPassword });
 
   await Session.deleteOne({ userId: user._id });
+};
+
+export const loginOrSignupWithGoogle = async (code) => {
+  const loginTicket = await validateCode(code);
+  const payload = loginTicket.getPayload();
+
+  if (!payload) throw createHttpError(401);
+
+  let user = await User.findOne({ email: payload.email });
+
+  if (!user) {
+    const password = await bcrypt.hash(crypto.randomBytes(10), 10);
+
+    user = await User.create({
+      email: payload.email,
+      name: getFullNameFromGoogleTokenPayload(payload),
+      password,
+    });
+  }
+
+  await Session.deleteOne({ userId: user._id });
+
+  return await Session.create({
+    userId: user._id,
+    ...createSession(),
+  });
 };

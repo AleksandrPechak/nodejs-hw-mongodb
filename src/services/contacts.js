@@ -67,9 +67,9 @@ export const addContact = async ({ payload, userId, photo }) => {
 export const patchContact = async ({ contactId, contact, userId, photo }) => {
   const result = ContactsCollection.findOneAndUpdate(
     { _id: contactId, userId },
-    { ...contact, photo },
+    { $set: { ...contact, photo } },
     {
-      new: true,
+      returnDocument: 'after',
     },
   );
   return result;
